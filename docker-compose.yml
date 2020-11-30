@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    command: >
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=financas
+      - DB_USER=financas
+      - DB_PASS=financas
+
+  db:
+    image: postgres:10-alpine
+    restart: always
+    environment:
+      - POSTGRES_DB=financas
+      - POSTGRES_USER=financas
+      - POSTGRES_PASSWORD=financas
+
+    ports:
+      - "5434:5434"
