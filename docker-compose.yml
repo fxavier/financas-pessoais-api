@@ -28,4 +28,4 @@ services:
       - POSTGRES_PASSWORD=financas
 
     ports:
-      - "5434:5434"
+      - "5435:5435"
