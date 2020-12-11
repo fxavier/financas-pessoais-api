@@ -3,8 +3,8 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 
 TYPE = (
-    ('DEBIT', 'DebitO'),
-    ('CREDIT', 'CreditO')
+    ('DEBIT', 'Debito'),
+    ('CREDIT', 'Credito')
 )
 
 class UserManager(BaseUserManager):
@@ -32,7 +32,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     """Custom user model that suppors using email instead of username"""
     email = models.EmailField(max_length=255, unique=True)
-    nome = models.CharField(max_length=255, null=True, blank=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -42,32 +42,34 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     
 class Category(models.Model):
-    description = models.CharField(max_length=255)
-    operation = models.CharField(max_length=50, choices=TYPE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, max_length=255)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=255, null=True, blank=True)
     
     class Meta:
         verbose_name_plural = 'Categories'
     
     def __str__(self):
-        return self.description
+        return self.name
     
 class Account(models.Model):
     description = models.CharField(max_length=255)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, max_length=255, null=True, blank=True)
     
     def __str__(self):
         return self.description
     
-class Record(models.Model):
-    record_type = models.CharField(max_length=50, choices=TYPE)
+class Transaction(models.Model):
+    transaction_type = models.CharField(max_length=50, choices=TYPE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    record_date = models.DateField(auto_now_add=True)
+    transaction_date = models.DateField(auto_now_add=True)
     description = models.CharField(max_length=255)
-    tags = models.CharField(max_length=255)
-    note = models.TextField(max_length=500)
+    tags = models.CharField(max_length=255, null=True, blank=True)
+    note = models.TextField(max_length=500, blank=True)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.record_type
+        return self.transaction_type
     
     
